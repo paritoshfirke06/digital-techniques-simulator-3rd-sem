@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=3.0, user-scalable=yes">
+  <title>Digital Techniques Virtual Trainer Kit Simulator | DTA-09</title>
+  
+  <!-- FontAwesome Icons for Lab Equipment UI -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  
+  <!-- Application Stylesheets -->
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/board.css">
+  <link rel="stylesheet" href="css/components.css">
+</head>
+<body>
+  <div id="app-root">
+    
+    <!-- ==============================================
+         TOP TOOLBAR & LAB CONTROLS
+         ============================================== -->
+    <header class="top-navbar">
+      <!-- Brand & Kit Model -->
+      <div class="brand-section">
+        <div class="brand-logo">
+          <i class="fa-solid fa-microchip"></i>
+        </div>
+        <div class="brand-title">
+          <h1>Digital Techniques Simulator</h1>
+          <span class="brand-subtitle"><i class="fa-solid fa-circle-check"></i> DTA-09 Trainer Kit</span>
+        </div>
+      </div>
+
+      <!-- Mode Selector (Learning Mode vs Manual Lab Mode) -->
+      <div class="mode-toggle-group">
+        <button id="btn-mode-learning" class="mode-toggle-btn active" title="Automated step-by-step experiment demonstration">
+          <i class="fa-solid fa-graduation-cap"></i> Learning Mode
+        </button>
+        <button id="btn-mode-manual" class="mode-toggle-btn" title="Independent hands-on circuit wiring and testing">
+          <i class="fa-solid fa-hand"></i> Manual Lab Mode
+        </button>
+      </div>
+
+      <!-- Experiment Selection Dropdown -->
+      <div class="experiment-picker-wrapper">
+        <select id="experiment-selector" class="custom-select" title="Choose from all 17 syllabus experiments">
+          <!-- Populated dynamically by app.js -->
+        </select>
+      </div>
+
+      <!-- Playback Timeline & Speed Controls -->
+      <div id="top-playback-bar" class="top-playback-bar">
+        <!-- Play / Pause -->
+        <button id="btn-play-pause" class="btn btn-primary btn-sm" title="Start / Pause automated demonstration">
+          <i class="fa-solid fa-play"></i> Start
+        </button>
+
+        <!-- Restart -->
+        <button id="btn-restart" class="btn btn-secondary btn-icon btn-sm" title="Restart Experiment from Step 1">
+          <i class="fa-solid fa-rotate-left"></i>
+        </button>
+
+        <!-- Rewind 10s -->
+        <button id="btn-rewind-10" class="btn btn-secondary btn-icon btn-sm" title="Rewind 10 Seconds">
+          <i class="fa-solid fa-backward"></i>
+        </button>
+
+        <!-- Forward 10s -->
+        <button id="btn-forward-10" class="btn btn-secondary btn-icon btn-sm" title="Forward 10 Seconds">
+          <i class="fa-solid fa-forward"></i>
+        </button>
+
+        <!-- Progress Track & Time Counter -->
+        <div class="playback-progress-container">
+          <div id="playback-progress-track" class="playback-progress-track" title="Click to seek timeline">
+            <div id="playback-progress-bar" class="playback-progress-bar"></div>
+          </div>
+          <span id="playback-time-text" class="playback-time">00:00 / 00:00</span>
+        </div>
+
+        <!-- Speed Selector (Exactly: 0.2x, 0.5x, 0.7x, 1x, 1.5x, 2x) -->
+        <select id="playback-speed-select" class="playback-speed-select" title="Playback Speed Multiplier">
+          <option value="0.2">0.2x</option>
+          <option value="0.5">0.5x</option>
+          <option value="0.7">0.7x</option>
+          <option value="1.0" selected>1x</option>
+          <option value="1.5">1.5x</option>
+          <option value="2.0">2x</option>
+        </select>
+      </div>
+
+      <!-- Component Library & Reset Controls -->
+      <div class="top-controls-group">
+        <button id="btn-open-ic-library" class="btn btn-secondary btn-sm" title="Search and place IC components">
+          <i class="fa-solid fa-boxes-stacked"></i> IC Library
+        </button>
+        <button id="btn-reset-circuit" class="btn btn-danger btn-sm" title="Clear all circuit connections and ICs">
+          <i class="fa-solid fa-arrow-rotate-right"></i> Reset Kit
+        </button>
+      </div>
+    </header>
+
+    <!-- ==============================================
+         MAIN STUDIO WORKSPACE & SIDEBAR
+         ============================================== -->
+    <main class="studio-main">
+      
+      <!-- Center Workspace (1024x768 Overhead Trainer Kit Board) -->
+      <section class="workspace-area">
+        <div id="board-container" class="board-viewport">
+          <!-- Populated by BoardView & WiringSystem -->
+        </div>
+
+        <!-- Floating Board Tools (Zoom/Pan & Wire Color Palette) -->
+        <div class="floating-board-tools">
+          
+          <!-- Zoom Controls -->
+          <div class="zoom-controls-panel">
+            <button id="btn-zoom-in" class="btn btn-secondary btn-icon btn-sm" title="Zoom In (+)">
+              <i class="fa-solid fa-magnifying-glass-plus"></i>
+            </button>
+            <button id="btn-zoom-out" class="btn btn-secondary btn-icon btn-sm" title="Zoom Out (-)">
+              <i class="fa-solid fa-magnifying-glass-minus"></i>
+            </button>
+            <button id="btn-zoom-reset" class="btn btn-secondary btn-sm" title="Reset Zoom to 100%">
+              100%
+            </button>
+            <button id="btn-zoom-fit" class="btn btn-secondary btn-sm" title="Fit Trainer Kit to Screen">
+              <i class="fa-solid fa-expand"></i> Fit
+            </button>
+            <span id="zoom-percentage-text" class="zoom-percentage">100%</span>
+          </div>
+
+          <!-- Wire Color Selector -->
+          <div class="wire-palette-panel">
+            <span class="wire-palette-title"><i class="fa-solid fa-bezier-curve"></i> Wire:</span>
+            <div class="wire-color-swatch active-color" data-color="#ff2222" style="background: #ff2222;" title="Red (VCC / +5V)"></div>
+            <div class="wire-color-swatch" data-color="#111111" style="background: #111111;" title="Black (GND / 0V)"></div>
+            <div class="wire-color-swatch" data-color="#2277ff" style="background: #2277ff;" title="Blue (Input A)"></div>
+            <div class="wire-color-swatch" data-color="#11aa44" style="background: #11aa44;" title="Green (Input B)"></div>
+            <div class="wire-color-swatch" data-color="#eebb00" style="background: #eebb00;" title="Yellow (Input C)"></div>
+            <div class="wire-color-swatch" data-color="#ff8800" style="background: #ff8800;" title="Orange (Output Y)"></div>
+            <div class="wire-color-swatch" data-color="#aa33cc" style="background: #aa33cc;" title="Purple (Clock / Cascade)"></div>
+            <div class="wire-color-swatch" data-color="#ffffff" style="background: #ffffff;" title="White"></div>
+            
+            <button id="btn-delete-wire" class="btn btn-outline btn-sm" style="margin-left: 6px;" title="Delete selected wire (Del)">
+              <i class="fa-solid fa-trash-can"></i>
+            </button>
+            <button id="btn-clear-wires" class="btn btn-outline btn-sm" title="Clear all connecting wires">
+              Clear All
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Right Sidebar (Procedure Steps & Truth Table Results) -->
+      <aside class="sidebar-area">
+        <div class="sidebar-header">
+          <div>
+            <h3 id="active-exp-title">Experiment No. 1</h3>
+            <p id="active-exp-aim" style="font-size: 11px; color: var(--text-muted); margin-top: 3px;">
+              Aim: Test the functionality of Logic Gates
+            </p>
+          </div>
+          <span class="exp-badge-info"><i class="fa-solid fa-flask"></i> Practical</span>
+        </div>
+
+        <!-- ==============================================
+             ON-FRONT CIRCUIT SCHEMATIC & PINOUT VIEWER
+             ============================================== -->
+        <div id="front-circuit-card" class="front-circuit-card">
+          <div class="circuit-card-header">
+            <div class="circuit-card-title-group">
+              <i class="fa-solid fa-diagram-project circuit-icon"></i>
+              <span class="circuit-title-text">Circuit Schematic</span>
+              <span id="circuit-ic-badge" class="circuit-pill">IC 7408</span>
+            </div>
+            <div class="circuit-actions-group">
+              <button id="btn-toggle-diagram-mode" class="circuit-action-btn" title="Toggle between Circuit Schematic and IC Pinout">
+                <i class="fa-solid fa-microchip"></i> <span id="diagram-mode-text">Pinout</span>
+              </button>
+              <button id="btn-zoom-diagram" class="circuit-action-btn" title="Enlarge Circuit Diagram in High-Resolution Modal">
+                <i class="fa-solid fa-expand"></i> Zoom
+              </button>
+              <button id="btn-collapse-circuit-card" class="circuit-action-btn btn-icon-only" title="Collapse / Expand Diagram">
+                <i class="fa-solid fa-chevron-up"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Diagram Viewport Area (Always on front!) -->
+          <div id="circuit-diagram-viewport" class="circuit-diagram-viewport">
+            <!-- Dynamic SVG Schematic rendered here -->
+          </div>
+        </div>
+
+        <!-- Sidebar Navigation Tabs -->
+        <nav class="sidebar-tabs">
+          <button id="tab-btn-procedure" class="sidebar-tab-btn active" onclick="switchSidebarTab('procedure')">
+            <i class="fa-solid fa-list-check"></i> Procedure Steps
+          </button>
+          <button id="tab-btn-results" class="sidebar-tab-btn" onclick="switchSidebarTab('results')">
+            <i class="fa-solid fa-square-poll-vertical"></i> Truth Table & Results
+          </button>
+          <button id="tab-btn-schematic" class="sidebar-tab-btn" onclick="switchSidebarTab('schematic')">
+            <i class="fa-solid fa-bezier-curve"></i> Full Schematic
+          </button>
+        </nav>
+
+        <!-- Tab Pane 1: Procedure Steps Table -->
+        <div id="procedure-tab-pane" class="sidebar-tab-pane active">
+          <div id="procedure-panel-body" style="height: 100%;">
+            <!-- Rendered by ProcedureTable -->
+          </div>
+        </div>
+
+        <!-- Tab Pane 2: Results & Truth Table -->
+        <div id="results-tab-pane" class="sidebar-tab-pane">
+          <div id="results-panel-body">
+            <!-- Rendered by ResultsPanel -->
+          </div>
+        </div>
+
+        <!-- Tab Pane 3: Full Dedicated Schematic View -->
+        <div id="schematic-tab-pane" class="sidebar-tab-pane">
+          <div class="schematic-full-view-wrapper">
+            <div id="schematic-full-canvas" class="schematic-full-canvas-box">
+              <!-- Rendered dynamically -->
+            </div>
+            <div id="schematic-details-card" class="schematic-info-card">
+              <!-- Information details -->
+            </div>
+          </div>
+        </div>
+      </aside>
+    </main>
+
+    <!-- ==============================================
+         CIRCUIT DIAGRAM ENLARGED / ZOOM MODAL
+         ============================================== -->
+    <div id="diagram-zoom-modal" class="modal-overlay">
+      <div class="modal-dialog zoom-modal-dialog">
+        <div class="modal-header">
+          <h3><i class="fa-solid fa-diagram-project"></i> <span id="zoom-modal-title">Circuit Schematic & Logic Diagram</span></h3>
+          <button id="btn-close-zoom-modal" class="btn btn-outline btn-icon" title="Close Diagram (Esc)">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+        <div class="modal-body-content">
+          <div id="zoom-modal-viewport" class="zoom-modal-viewport">
+            <!-- Enlarged SVG Rendered Here -->
+          </div>
+          <div style="margin-top: 12px; display: flex; justify-content: space-between; align-items: center;">
+            <span id="zoom-modal-subtitle" style="font-size: 12px; color: var(--text-muted);">Verified against Texas Instruments & MSBTE Digital Techniques syllabus</span>
+            <div style="display: flex; gap: 8px;">
+              <button id="btn-zoom-toggle-mode" class="btn btn-secondary btn-sm">
+                <i class="fa-solid fa-repeat"></i> Toggle Pinout / Schematic
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==============================================
+         COMPONENT SEARCH & IC LIBRARY MODAL
+         ============================================== -->
+    <div id="ic-library-modal" class="modal-overlay">
+      <div class="modal-dialog">
+        <div class="modal-header">
+          <h3><i class="fa-solid fa-microchip"></i> Digital Logic IC & Component Library</h3>
+          <button id="btn-close-ic-modal" class="btn btn-outline btn-icon" title="Close Library (Esc)">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+
+        <div class="modal-search-bar">
+          <div class="search-input-wrapper">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" id="ic-search-input" class="search-input" placeholder="Search by IC number (e.g., 7400, 7486, 7490) or name (e.g. NAND, Adder, Counter)..." autocomplete="off" />
+          </div>
+        </div>
+
+        <div class="modal-body-content">
+          <div id="ic-cards-grid" class="ic-cards-grid">
+            <!-- Populated dynamically by app.js -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Inline Tab Switcher Script -->
+  <script>
+    function switchSidebarTab(tabName) {
+      document.querySelectorAll('.sidebar-tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.sidebar-tab-pane').forEach(p => p.classList.remove('active'));
+      if (tabName === 'procedure') {
+        document.getElementById('tab-btn-procedure')?.classList.add('active');
+        document.getElementById('procedure-tab-pane')?.classList.add('active');
+      } else if (tabName === 'results') {
+        document.getElementById('tab-btn-results')?.classList.add('active');
+        document.getElementById('results-tab-pane')?.classList.add('active');
+      } else if (tabName === 'schematic') {
+        document.getElementById('tab-btn-schematic')?.classList.add('active');
+        document.getElementById('schematic-tab-pane')?.classList.add('active');
+        if (window.appInstance?.circuitDiagram) {
+          window.appInstance.updateFullSchematicTab();
+        }
+      }
+    }
+  </script>
+
+  <!-- Application Logic Scripts -->
+  <script src="js/board-coords.js"></script>
+  <script src="js/ic-library.js"></script>
+  <script src="js/logic-engine.js"></script>
+  <script src="js/wiring-system.js"></script>
+  <script src="js/board-view.js"></script>
+  <script src="js/playback-controller.js"></script>
+  <script src="js/procedure-table.js"></script>
+  <script src="js/results-panel.js"></script>
+  <script src="js/circuit-diagrams.js"></script>
+  <script src="js/experiments-data.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

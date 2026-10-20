@@ -1,0 +1,480 @@
+/**
+ * DIGITAL TECHNIQUES VIRTUAL TRAINER KIT SIMULATOR
+ * Board Styling, Overlays, 3D Switches, Glowing LEDs & ZIF Sockets
+ */
+
+.board-viewport {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+  cursor: default;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.board-stage {
+  width: 1024px;
+  height: 768px;
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform-origin: 0 0;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8), 0 0 100px rgba(0, 0, 0, 0.6);
+  border-radius: 8px;
+}
+
+/* Photorealistic Background */
+.board-bg-img {
+  width: 1024px;
+  height: 768px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  border-radius: 8px;
+  display: block;
+}
+
+/* Interactive DOM Elements Layer */
+.board-elements-layer {
+  width: 1024px;
+  height: 768px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none; /* children enable pointer events */
+  z-index: 10;
+}
+
+/* SVG Vector Layer (Wires, Plugs, Rubberband) */
+.board-svg-layer {
+  width: 1024px;
+  height: 768px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  z-index: 20;
+}
+
+/* Wire paths in SVG */
+.wire-item {
+  cursor: pointer;
+  pointer-events: all;
+}
+
+.wire-hit-area {
+  cursor: pointer;
+  pointer-events: stroke;
+}
+
+.wire-hit-area:hover + path {
+  opacity: 0.6;
+}
+
+/* =========================================
+ * 1. INTERACTIVE HOLES & TERMINALS
+ * ========================================= */
+.trainer-hole {
+  width: 20px;
+  height: 20px;
+  position: absolute;
+  border-radius: 50%;
+  cursor: crosshair;
+  pointer-events: all;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 15;
+}
+
+.hole-target {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: transparent;
+  transition: all 0.15s ease;
+}
+
+.trainer-hole:hover .hole-target {
+  background: rgba(59, 130, 246, 0.4);
+  box-shadow: 0 0 8px rgba(59, 130, 246, 0.9), inset 0 0 4px #60a5fa;
+  transform: scale(1.3);
+}
+
+/* Hole Highlights during Step Animation */
+.trainer-hole.hole-highlight .hole-target {
+  animation: pulse-ring 1.2s infinite;
+}
+
+.trainer-hole.hole-source .hole-target {
+  background: rgba(239, 68, 68, 0.4);
+  box-shadow: 0 0 12px #ef4444, inset 0 0 6px #ffffff;
+  transform: scale(1.4);
+}
+
+.trainer-hole.hole-dest .hole-target {
+  background: rgba(16, 185, 129, 0.4);
+  box-shadow: 0 0 12px #10b981, inset 0 0 6px #ffffff;
+  transform: scale(1.4);
+}
+
+@keyframes pulse-ring {
+  0% { transform: scale(1); box-shadow: 0 0 4px #3b82f6; }
+  50% { transform: scale(1.45); box-shadow: 0 0 14px #60a5fa, inset 0 0 4px #ffffff; }
+  100% { transform: scale(1); box-shadow: 0 0 4px #3b82f6; }
+}
+
+/* =========================================
+ * 2. 3D TOGGLE SWITCHES
+ * ========================================= */
+.trainer-switch {
+  width: 24px;
+  height: 36px;
+  position: absolute;
+  cursor: pointer;
+  pointer-events: all;
+  z-index: 14;
+}
+
+.switch-bezel {
+  width: 100%;
+  height: 100%;
+  background: #1b2838;
+  border: 1px solid #3b82f6;
+  border-radius: 4px;
+  position: relative;
+  box-shadow: inset 0 1px 4px rgba(0,0,0,0.8), 0 1px 3px rgba(0,0,0,0.5);
+  display: flex;
+  justify-content: center;
+}
+
+.switch-toggle-lever {
+  width: 18px;
+  height: 16px;
+  background: linear-gradient(180deg, #f0f0f0, #c0c0c0);
+  border-radius: 3px;
+  position: absolute;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.6), inset 0 1px 1px #fff;
+  transition: all 0.12s cubic-bezier(0.2, 0.8, 0.3, 1.2);
+}
+
+/* Switch Lever UP (HIGH / 1) */
+.trainer-switch.switch-up .switch-toggle-lever {
+  top: 3px;
+  background: linear-gradient(180deg, #ffffff, #dcdcdc);
+  box-shadow: 0 3px 6px rgba(0,0,0,0.7), inset 0 -1px 2px rgba(0,0,0,0.2);
+}
+
+/* Switch Lever DOWN (LOW / 0) */
+.trainer-switch.switch-down .switch-toggle-lever {
+  bottom: 3px;
+  background: linear-gradient(180deg, #cccccc, #999999);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.7), inset 0 1px 2px rgba(255,255,255,0.4);
+}
+
+/* =========================================
+ * 3. REALISTIC GLOWING LED INDICATORS
+ * ========================================= */
+.trainer-led {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  position: absolute;
+  pointer-events: none;
+  z-index: 12;
+  transition: all 0.1s ease;
+}
+
+/* Red LED OFF (Dark red with faint metallic bezel reflection) */
+.led-red.led-off {
+  background: radial-gradient(circle at 35% 35%, #7f1d1d, #450a0a 70%);
+  border: 1px solid #2b0606;
+  box-shadow: inset 0 1px 2px rgba(255,255,255,0.2), 0 1px 2px rgba(0,0,0,0.6);
+  opacity: 0.65;
+}
+
+/* Red LED ON (Intense radiant red with lens flare bloom) */
+.led-red.led-on {
+  background: radial-gradient(circle at 40% 40%, #ff8888 15%, #ef4444 60%, #b91c1c 95%);
+  border: 1px solid #fca5a5;
+  box-shadow:
+    0 0 6px #ef4444,
+    0 0 14px rgba(239, 68, 68, 0.9),
+    0 0 24px rgba(239, 68, 68, 0.6),
+    inset 0 0 3px #ffffff;
+  opacity: 1;
+}
+
+/* Green LED OFF (For probe) */
+.led-green.led-off {
+  background: radial-gradient(circle at 35% 35%, #064e3b, #022c22 70%);
+  border: 1px solid #022c22;
+  opacity: 0.65;
+}
+
+/* Green LED ON (For probe) */
+.led-green.led-on {
+  background: radial-gradient(circle at 40% 40%, #a7f3d0 15%, #10b981 60%, #047857 95%);
+  border: 1px solid #6ee7b7;
+  box-shadow:
+    0 0 6px #10b981,
+    0 0 14px rgba(16, 185, 129, 0.9),
+    0 0 24px rgba(16, 185, 129, 0.6),
+    inset 0 0 3px #ffffff;
+  opacity: 1;
+}
+
+/* =========================================
+ * 4. MANUAL PULSER BUTTON
+ * ========================================= */
+.manual-pulser-btn {
+  width: 44px;
+  height: 44px;
+  position: absolute;
+  border-radius: 50%;
+  cursor: pointer;
+  pointer-events: all;
+  z-index: 15;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pulser-inner-cap {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #f87171, #dc2626 65%, #991b1b);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.7), inset 0 2px 2px rgba(255,255,255,0.4);
+  transition: all 0.08s ease;
+}
+
+.manual-pulser-btn:hover .pulser-inner-cap {
+  filter: brightness(1.1);
+}
+
+.manual-pulser-btn.pulser-pressed .pulser-inner-cap {
+  transform: scale(0.92);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.8), inset 0 2px 4px rgba(0,0,0,0.5);
+  background: radial-gradient(circle at 50% 50%, #b91c1c, #991b1b);
+}
+
+/* =========================================
+ * 5. ZIF SOCKETS & SEATED IC CHIPS
+ * ========================================= */
+.zif-socket-overlay {
+  position: absolute;
+  cursor: pointer;
+  pointer-events: all;
+  z-index: 12;
+}
+
+.zif-socket-overlay.socket-highlight-pulse {
+  outline: 3px solid #3b82f6;
+  outline-offset: 4px;
+  animation: pulse-ring 0.8s infinite;
+}
+
+.zif-chip-slot {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding-left: 6px;
+}
+
+/* Seated IC Package (Matte black epoxy DIP) */
+.seated-ic-package {
+  height: 36px;
+  background: linear-gradient(180deg, #222225 0%, #161618 50%, #101012 100%);
+  border-radius: 3px;
+  position: relative;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.9), inset 0 1px 1px rgba(255, 255, 255, 0.2);
+  border: 1px solid #333338;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.seated-ic-package.ic-14pin {
+  width: 168px;
+}
+.seated-ic-package.ic-16pin {
+  width: 194px;
+}
+
+/* Left Orientation Notch */
+.ic-notch {
+  width: 7px;
+  height: 12px;
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  background: #09090b;
+  border-radius: 0 6px 6px 0;
+  box-shadow: inset 1px 0 2px rgba(0,0,0,0.8);
+}
+
+/* Pin 1 Index Dot */
+.ic-pin1-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #09090b;
+  position: absolute;
+  left: 10px;
+  top: 6px;
+  box-shadow: inset 0 1px 1px rgba(0,0,0,0.9);
+}
+
+/* Laser-etched IC Part Text */
+.ic-label-text {
+  font-family: var(--font-mono);
+  color: #d1d5db;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ic-brand {
+  font-size: 8px;
+  color: #9ca3af;
+  border: 1px solid #4b5563;
+  padding: 1px 3px;
+  border-radius: 2px;
+}
+
+/* ZIF Lever Handle */
+.zif-lever {
+  position: absolute;
+  right: -8px;
+  top: 8px;
+  width: 14px;
+  height: 28px;
+  background: linear-gradient(90deg, #0099cc, #006688);
+  border-radius: 3px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+  transition: transform 0.25s ease;
+}
+
+.zif-lever.lever-locked {
+  transform: rotate(0deg);
+}
+.zif-lever.lever-unlocked {
+  transform: rotate(-45deg);
+}
+
+/* =========================================
+ * 6. 7-SEGMENT DISPLAYS
+ * ========================================= */
+.seven-segment-display {
+  position: absolute;
+  background: #0a0a0c;
+  border: 2px solid #222;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: inset 0 2px 6px rgba(0,0,0,0.9);
+  pointer-events: none;
+  z-index: 12;
+}
+
+.seven-segment-display.mini-seg {
+  width: 36px;
+  height: 55px;
+}
+
+.seven-segment-display.large-seg {
+  width: 45px;
+  height: 65px;
+}
+
+.seg-svg {
+  width: 85%;
+  height: 85%;
+}
+
+.seg-bar {
+  transition: all 0.08s ease;
+}
+
+.seg-off {
+  fill: #1f1414;
+}
+
+.seg-on {
+  fill: #ef4444;
+  filter: drop-shadow(0 0 3px #ef4444) drop-shadow(0 0 6px #dc2626);
+}
+
+/* =========================================
+ * 7. FLOATING TOOLBARS (Zoom, Wire Palette)
+ * ========================================= */
+.floating-board-tools {
+  position: absolute;
+  bottom: 16px;
+  left: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  z-index: 40;
+}
+
+.zoom-controls-panel, .wire-palette-panel {
+  background: rgba(26, 30, 39, 0.92);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 4px 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.5);
+}
+
+.zoom-percentage {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-muted);
+  min-width: 42px;
+  text-align: center;
+}
+
+/* Wire Swatches */
+.wire-palette-title {
+  font-size: 11px;
+  color: var(--text-dim);
+  font-weight: 600;
+  text-transform: uppercase;
+  margin-right: 4px;
+}
+
+.wire-color-swatch {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: transform 0.15s ease;
+}
+
+.wire-color-swatch:hover {
+  transform: scale(1.2);
+}
+
+.wire-color-swatch.active-color {
+  border-color: #ffffff;
+  transform: scale(1.25);
+  box-shadow: 0 0 8px rgba(255,255,255,0.6);
+}

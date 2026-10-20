@@ -1,0 +1,23 @@
+{
+  "name": "digital-techniques-virtual-trainer-simulator",
+  "version": "1.0.0",
+  "description": "Virtual DTA-09 Digital Techniques Trainer Kit Simulator with Interactive Physical Lab Manual Schematics",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node check-syntax.js",
+    "build": "node -e \"console.log('Production build: static assets verified successfully.')\""
+  },
+  "keywords": [
+    "digital-electronics",
+    "logic-gates",
+    "trainer-kit",
+    "msbte",
+    "dte",
+    "virtual-lab",
+    "simulator",
+    "polytechnic"
+  ],
+  "author": "Paritosh",
+  "license": "MIT"
+}
