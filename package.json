@@ -6,7 +6,6 @@
   "scripts": {
     "start": "node server.js",
     "test": "node check-syntax.js",
-    "build": "node -e \"console.log('Production build: static assets verified successfully.')\""
   },
   "keywords": [
     "digital-electronics",
